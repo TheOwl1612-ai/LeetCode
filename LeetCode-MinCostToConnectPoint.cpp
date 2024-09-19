@@ -1,48 +1,49 @@
 #include "Debug.cpp"
 #include <numeric>
-#define INF INT_MAX
 class Solution {
 public:
-    typedef pair<int,int> point; //distance - node
-
-    int calcDist(vector<int>& pointA, vector<int>& pointB){
-        return (abs(pointA[0] - pointB[0]) + abs(pointA[1] - pointB[1]));
+    int calcDist(vector<int>& a, vector<int>& b){
+        return abs(a[0] - b[0]) + abs(a[1] - b[1]);
     }
     int minCostConnectPoints(vector<vector<int>>& points) {
-        int V = points.size();
-        priority_queue<point,vector<point>, greater<point>> pq;
-        vector<int> dist (V,INF);
-        vector<bool> visited (V, false);
+        size_t V = points.size();
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq; //cost : index
+        vector<bool> visited (V,false);
 
-        dist[0] = 0;
-        pq.push({0,0});
-
-        while (!pq.empty()){
-            int u = pq.top().second;
-            pq.pop();
-            visited[u] = true;
-
-            for (int v = 0; v < V; v++){
-                int curDist = calcDist(points[u],points[v]);
-                if (!visited[v] && dist[v] > curDist){
-                    dist[v] = curDist;
-                    pq.push({curDist,v});
+        int connected = 0;
+        int first = 0;
+        int res = 0;
+        while (++connected < V){
+            visited[first] = true;
+            int second = first;
+            for (int second = 0; second < V; second++){
+                if (!visited[second]){
+                    pq.push({calcDist(points[first],points[second]),second});
                 }
             }
+
+            while (visited[pq.top().second]){
+                pq.pop();
+            }
+
+            res += pq.top().first;
+            first = pq.top().second;
+            pq.pop();
         }
 
-        //final result
-        return accumulate(dist.begin(),dist.end(),0);
+        return res;
         
     }
 };
 
 int main(){
     Solution solution;
-    std::vector<std::vector<int>> vec = {
-    {3, 12},
-    {-2, 5},
-    {-4, 1}
+    std::vector<std::vector<int>> points = {
+        {0, 0},
+        {2, 2},
+        {3, 10},
+        {5, 2},
+        {7, 0}
+    };
+    cout << solution.minCostConnectPoints(points);
 };
-    cout << solution.minCostConnectPoints(vec);
-}
